@@ -36,11 +36,11 @@
     "init_lr": [1e-03],
     "num_chan": [3],
     "tuning_metric": ["c_index"],
-    "num_workers": [12],
+    "num_workers": [24],
     "objective": ["cross_entropy"],
     "optimizer": ["adam"],
     "train": [false],
-    "dev":[true],
+    "dev":[false],
     "test": [true],
     "class_bal": [true],
     "year_weighted_class_bal": [false],
@@ -51,9 +51,9 @@
     "test_image_transformers": [["scale_2d align_to_left"]],
     "test_tensor_transformers": [["force_num_chan_2d normalize_2d"]],
     "ignore_warnings": [false],
-    "data_parallel": [true],
+    "data_parallel": [false],
     "model_parallel": [false],
-    "num_gpus":[4],
+    "num_gpus":[1],
     "num_shards":[1],
     "use_risk_factors": [true],
     "dropout": [0],
@@ -61,5 +61,5 @@
     "risk_factor_metadata_path": ["/Mounts/Isilon/metadata/risk_factors_aug06_2018_mammo_and_mri.json"],
     "risk_factor_keys": ["density binary_family_history binary_biopsy_benign binary_biopsy_LCIS binary_biopsy_atypical_hyperplasia age menarche_age menopause_age first_pregnancy_age prior_hist race parous menopausal_status weight height ovarian_cancer ovarian_cancer_age ashkenazi brca mom_bc_cancer_history m_aunt_bc_cancer_history p_aunt_bc_cancer_history m_grandmother_bc_cancer_history p_grantmother_bc_cancer_history sister_bc_cancer_history mom_oc_cancer_history m_aunt_oc_cancer_history p_aunt_oc_cancer_history m_grandmother_oc_cancer_history p_grantmother_oc_cancer_history sister_oc_cancer_history hrt_type hrt_duration hrt_years_ago_stopped"]
   },
-  "available_gpus": ["0,1,2,3"]
+  "available_gpus": [0,1,2,3]
 }
