@@ -26,3 +26,4 @@ import onconet.datasets.kinetics
 import onconet.datasets.mgh_mri_bpe
 import onconet.datasets.mgh_mri_risk
 import onconet.datasets.birds
+import onconet.datasets.bmcs_mammo_cancer_survival_all_images
