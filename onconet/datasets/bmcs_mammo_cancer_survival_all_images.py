@@ -16,7 +16,7 @@ MAX_SIDES = 2
 MAX_TIME=10
 DAYS_IN_YEAR = 365
 
-@RegisterDataset("bmcs_all")
+@RegisterDataset("bmcs_all_full_future")
 class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dataset):
 
     '''
@@ -33,11 +33,16 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
         if split_group != 'test':
             return dataset
         for mrn_row in tqdm.tqdm(self.metadata_json):
-            ssn, exams = mrn_row['pid'], mrn_row['split_group'], mrn_row['exams']
+            ssn, exams = mrn_row['pid'],  mrn_row['exams']
 
             for exam in exams:
                 date_str = exam['sdate']
                 exam['accession'] = "{}_{}".format(ssn, date_str)
+                if "years_to_cancer" not in exam:
+                    exam['years_to_cancer'] = exam['year_to_cancer']
+                if exam['years_to_cancer'] < 0:
+                    continue
+                exam['years_to_last_followup'] = 5
 
                 if self.check_label(exam):
                     left_ccs, left_mlos, right_ccs, right_mlos = self.image_paths_by_views(exam)
@@ -45,7 +50,7 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
                     if len(left_ccs+left_mlos+right_ccs+right_mlos) != 4:
                         continue
 
-                    if not self.is_valid_device(exam)
+                    if not self.is_valid_device(exam):
                         continue
 
                     y, y_seq, y_mask, time_at_event = self.get_label(exam)
@@ -70,9 +75,8 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
                         'y_mask_r': y_mask,
                         'y_seq_r': y_seq,
                         'time_at_event_r': time_at_event,
-                        'year': year,
+                        'year': 2008,
                         'exam': exam['accession'],
-                        'dist_key': dist_key,
                         'ssn': ssn,
                         'time_seq': pad_to_length(time_stamps, MAX_TIME , self.args.num_images),
                         'view_seq': pad_to_length(all_views, MAX_VIEWS , self.args.num_images),
@@ -81,12 +85,12 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
                     })
         return dataset
 
-    def image_paths_by_views(self, row):
+    def image_paths_by_views(self, exam):
 
         def get_view(view_name):
             image_paths_w_view = [(view, image_path) for view, image_path in zip(exam['views'], exam['files']) if view.startswith(view_name)]
-            image_paths_w_view = image_paths_w_view[:1]
-            image_paths = (lambda image_paths, source_dir: [source_dir+path for _ , path in image_paths_w_view])(image_paths_w_view, source_dir)
+            image_paths_w_view = image_paths_w_view[:1] 
+            image_paths = [image_paths_w_view[-1][-1]] if len(image_paths_w_view) > 0 else []
             return image_paths
 
         left_ccs = get_view('LCC')
@@ -120,21 +124,13 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
         y_seq = np.zeros(self.args.max_followup)
 
         if y:
-            time_at_event = row[cancer_key]
-            y_seq[row[cancer_key]:] = 1
-            if not self.args.mask_like_slice and self.args.linear_interpolate_risk:
-                year_hazard = 1.0 / (time_at_event + 1)
-                y_seq = np.array([ (i+1)* year_hazard if v < 1.0 else v for i,v in enumerate(list(y_seq)) ])
+            time_at_event = int(row[cancer_key])
+            y_seq[time_at_event:] = 1
 
         else:
-            time_at_event = min(row["years_to_last_followup"], self.args.max_followup) - 1
+            time_at_event = int(min(row["years_to_last_followup"], self.args.max_followup) - 1)
 
         y_mask = np.array([1] * (time_at_event+1) + [0]* (self.args.max_followup - (time_at_event+1) ))
-        if self.args.mask_like_slice and y:
-            y_mask = np.zeros(self.args.max_followup)
-            y_mask[time_at_event] = 1
-        if (self.args.make_probs_indep or self.args.mask_like_indep) and y:
-            y_mask =  np.ones(self.args.max_followup)
         assert len(y_mask) == self.args.max_followup
         return any_cancer, y_seq.astype('float64'), y_mask.astype('float64'), time_at_event
 
@@ -155,13 +151,13 @@ def pad_to_length(arr, pad_token, max_length):
     arr = arr[-max_length:]
     return  np.array( [pad_token]* (max_length - len(arr)) + arr)
 
-@RegisterDataset("bmcs_ge")
+@RegisterDataset("bmcs_ge_full_future")
 class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
 
     def is_valid_device(self, row):
         return all([not '2000D' in man and not 'Selenia' in man for man in row['manufacturer_model']])
 
-@RegisterDataset("bmcs_hologic")
+@RegisterDataset("bmcs_hologic_full_future")
 class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
 
     def is_valid_device(self, row):
