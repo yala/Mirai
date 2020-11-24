@@ -89,7 +89,7 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
 
         def get_view(view_name):
             image_paths_w_view = [(view, image_path) for view, image_path in zip(exam['views'], exam['files']) if view.startswith(view_name)]
-            image_paths_w_view = image_paths_w_view[:1] 
+            image_paths_w_view = image_paths_w_view[:1]
             image_paths = [image_paths_w_view[-1][-1]] if len(image_paths_w_view) > 0 else []
             return image_paths
 
@@ -151,14 +151,17 @@ def pad_to_length(arr, pad_token, max_length):
     arr = arr[-max_length:]
     return  np.array( [pad_token]* (max_length - len(arr)) + arr)
 
-@RegisterDataset("bmcs_ge_full_future")
-class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
-
+@RegisterDataset("bmcs_ge_all_full_future")
+class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_All_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
     def is_valid_device(self, row):
         return all([not '2000D' in man and not 'Selenia' in man for man in row['manufacturer_model']])
 
-@RegisterDataset("bmcs_hologic_full_future")
-class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
+@RegisterDataset("bmcs_ge_essential_full_future")
+class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_GE_Essential_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
+    def is_valid_device(self, row):
+        return all(['Essential' in man for man in row['manufacturer_model']])
 
+@RegisterDataset("bmcs_hologic_full_future")
+class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_Hologic_Device(BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device):
     def is_valid_device(self, row):
         return all(['Selenia' in man for man in row['manufacturer_model']])
