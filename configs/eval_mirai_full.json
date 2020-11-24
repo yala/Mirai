@@ -8,7 +8,7 @@
     "batch_size": [2],
     "cuda": [true],
     "predict_birads":[false],
-    "dataset": ["bmcs_all", "bmcs_ge", "bmcs_hologic"],
+    "dataset": ["bmcs_all_full_future", "bmcs_ge_all_full_future", "bmcs_ge_essential_full_future", "bmcs_hologic_full_future"],
     "pred_both_sides":[false],
     "pred_risk_factors": [true],
     "use_pred_risk_factors_at_test": [true],
