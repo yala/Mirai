@@ -3,6 +3,7 @@
     "model_name":["mirai_full"],
     "img_encoder_snapshot":["snapshots/mgh_mammo_MIRAI_Base_May20_2019.p"],
     "transformer_snapshot":["snapshots/mgh_mammo_cancer_MIRAI_Transformer_Jan13_2020.p"],
+    "metadata_dir":["/data/rsg/mammogram/BMCS_data/"],
     "batch_splits": [1],
     "batch_size": [2],
     "cuda": [true],
