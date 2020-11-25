@@ -6,6 +6,7 @@ from torch.utils import data
 import os
 import warnings
 import json
+import csv
 import traceback
 from collections import Counter
 from onconet.datasets.loader.image import image_loader
@@ -44,23 +45,23 @@ class Abstract_Onco_Dataset(data.Dataset):
         '''
         super(Abstract_Onco_Dataset, self).__init__()
 
-        if args.is_ccds_server:
-            if not 'ccds.io' in args.metadata_dir:
-                args.metadata_dir = '/home/{}{}'.format(args.unix_username, args.metadata_dir)
-                args.risk_factor_metadata_path = '/home/{}{}'.format(args.unix_username, args.risk_factor_metadata_path)
 
-            if not 'ccds.io' in args.cache_path:
-                args.cache_path = '/home/{}/Mounts/NetApp{}'.format(args.unix_username, args.cache_path)
-
-        args.metadata_path = os.path.join(args.metadata_dir,
+        if args.metadata_dir is not None and args.metadata_path is None:
+            args.metadata_path = os.path.join(args.metadata_dir,
                                           self.METADATA_FILENAME)
 
         self.split_group = split_group
         self.args = args
         self.image_loader = image_loader(args.cache_path,
                                                       transformers)
+
         try:
-            self.metadata_json = json.load(open(args.metadata_path, 'r'))
+            if 'json' in args.metadata_path:
+                self.metadata_json = json.load(open(args.metadata_path, 'r'))
+            else:
+                assert 'csv' in args.metadata_path
+                _reader = csv.DictReader(open(args.metadata_path,'r'))
+                self.metadata_json = [r for r in _reader]
         except Exception as e:
             raise Exception(METAFILE_NOTFOUND_ERR.format(args.metadata_path, e))
 
@@ -281,7 +282,7 @@ class Abstract_Onco_Dataset(data.Dataset):
                 d['device_name'] = np.array(d['device_name'])
                 d['device'] = np.array(d['device'])
                 d['device_is_known'] = np.array(d['device_is_known'], dtype=int)
-        
+
         device_dist = Counter([ d['device'] if single_image else d['device'][-1] for d in self.dataset])
         print("Device Dist: {}".format(device_dist))
         if self.split_group == 'train':
