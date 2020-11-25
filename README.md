@@ -13,7 +13,7 @@ We note that this code-base is an extension of [OncoNet](https://github.com/yala
 
 ## Aside on Software Depedencies
 This code assumes python3.6 and a Linux environment.
-The package requirements can be install with pip: 
+The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
@@ -23,7 +23,7 @@ If you are familiar with docker, you can also directly leverage the OncoServe do
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
 
 ## Inclusion Criteria
-Mirai expects all four standard “For Presentation” views of the mammogram.  Specifically, it requires an “L CC”, “L MLO”, “R CC”, “R MLO”. It will not work without all four views or with “For Processing” mammograms.  As a result, we unfortunately cannot provide risk assessments for patients with only non-standard views or unilateral mammograms.  All of the mammograms used in our study were captured using either the Hologic Selenia or Selenia Dimensions mammography devices. We have yet tested Mirai on other machines.
+Mirai expects all four standard “For Presentation” views of the mammogram.  Specifically, it requires an “L CC”, “L MLO”, “R CC”, “R MLO”. It will not work without all four views or with “For Processing” mammograms.  As a result, we unfortunately cannot provide risk assessments for patients with only non-standard views or unilateral mammograms. Moreover, we cannot run the model on marked up images (i.e images with some CAD or human annotations).  All of the mammograms used in our study were captured using either the Hologic Selenia or Selenia Dimensions mammography devices. We have yet tested Mirai on other machines.
 
 # Reproducing Mirai
 As described in the supplementary material of the paper, Mirai was trained in two phases; first, we trained the image encoder in conjunction with the risk factor predictor and additive hazard layer to predict breast cancer independently from each view without using conditional adversarial training. In this stage, we intialialized our image encoder with weights from ImageNet, and augmented our training set with random flips and rotations of the original images. We found that adding an adversarial loss at this stage or training the whole architecture end-to-end prevented the model from converging. In the second stage of training, we froze our image encoder, and trained the image aggregation module, the risk factor prediction module, the additive hazard layer, and the device discriminator in a conditional adversarial training regime. We trained our adversary for three steps for every one step of training Mirai. In each stage, we performed small hyperparameter searches and chose the model that obtained the highest C-index on the development set.
