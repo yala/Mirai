@@ -395,9 +395,6 @@ def validate_args(args):
     if args.class_bal and args.year_weighted_class_bal:
         raise ValueError(CONFLICTING_WEIGHTED_SAMPLING_ERR)
 
-    if args.survival_analysis_setup != ('_full_future' in args.dataset):
-        raise ValueError(INVALID_DATASET_FOR_SURVIVAL)
-
     assert args.ten_fold_test_index in range(-1, 10)
 
 def parse_list_args(args):
