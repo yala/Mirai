@@ -16,7 +16,7 @@ class MiraiFull(nn.Module):
         else:
             self.image_encoder = get_model_by_name('custom_resnet', False, args)
 
-        if self.args.freeze_image_encoder:
+        if hasattr(self.args, "freeze_image_encoder") and self.args.freeze_image_encoder:
             for param in self.image_encoder.parameters():
                 param.requires_grad = False
 
