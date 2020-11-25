@@ -28,10 +28,12 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
         :split_group: - ['train'|'dev'|'test'].
         :img_dir: - The path to the dir containing the images.
         """
+        
 
         dict_dataset = defaultdict(dict)
-        for row in self.metadata_json:
-            patient_id, exam_id, split  = row['patient_id'], exam['exam_id'], row['split_group']
+        for _row in self.metadata_json:
+            row = {k.encode('ascii', 'ignore').decode(): v.encode('ascii', 'ignore').decode() for k,v in _row.items()}
+            patient_id, exam_id, split  = row['patient_id'], row['exam_id'], row['split_group']
             view = "{} {}".format(row['laterality'], row['view'])
             accession = "{}\t{}".format(patient_id, exam_id)
             file = row['file_path']
