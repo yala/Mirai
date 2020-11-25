@@ -1,5 +1,0 @@
-{
-     "path_to_twilio_secret": "/scratch1/adamyala/OncoNet/secrets/twilio_info.json",
-     "alert_nums": ["+12244657241"],
-     "suppress_alerts":true
-}
