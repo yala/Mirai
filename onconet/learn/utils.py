@@ -171,7 +171,7 @@ def compute_eval_metrics_survival(args, loss, golds, preds, probs, exams, reg_lo
     metrics, sample_sizes = compute_auc_metrics_given_curve(probs, censor_times, golds, years, args.max_followup, args.censoring_distribution)
 
     for followup in range(args.max_followup):
-        for allow_all_years in [True, False]:
+        for allow_all_years in [True]:
             min_followup_if_neg = followup + 1
             metric_key = min_followup_if_neg if allow_all_years else "year_filtered_{}".format(min_followup_if_neg)
             auc = metrics[metric_key]

@@ -48,16 +48,12 @@ def get_annotation_mask(x, batch, volatile, args):
 
     if args.h_arr is None:
         h_arr = torch.arange(start=0, end=1-epsilon, step=1/H)
-        if args.cuda:
-            h_arr = h_arr.cuda(async=True)
         args.h_arr = h_arr
     else:
         h_arr = args.h_arr
 
     if args.w_arr is None:
         w_arr = torch.arange(start=0, end=1-epsilon, step=1/W)
-        if args.cuda:
-            w_arr = w_arr.cuda(async=True)
         args.w_arr = w_arr
     else:
         w_arr = args.w_arr
