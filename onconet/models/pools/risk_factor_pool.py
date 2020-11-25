@@ -54,7 +54,7 @@ class RiskFactorPool(AbstractPool):
                 if not self.training and self.args.use_pred_risk_factors_if_unk:
                     is_rf_known = (torch.sum(gold_rf, dim=-1) > 0).unsqueeze(-1).float()
                     key_probs = (is_rf_known * gold_rf) + (1 - is_rf_known)*key_probs
-                elif self.training and self.args.mask_prob > 0:
+                elif self.training and self.args.mask_prob > 0 and gold_rf is not None:
                     is_rf_known = np.random.random() > self.args.mask_prob
                     key_probs = (is_rf_known * gold_rf) + (1 - is_rf_known) * key_probs
 
