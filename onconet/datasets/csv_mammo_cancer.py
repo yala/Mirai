@@ -39,12 +39,13 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
             file = row['file_path']
 
             dict_dataset[patient_id]['split'] = split
+            dict_dataset[patient_id]['pid'] = patient_id
             if 'exams' not in dict_dataset[patient_id]:
                 dict_dataset[patient_id]['exams'] = {}
             if accession not in dict_dataset[patient_id]['exams']:
                 dict_dataset[patient_id]['exams'][accession] = {
-                    'years_to_cancer': row['years_to_cancer'],
-                    'years_to_last_followup': row['years_to_last_followup'],
+                    'years_to_cancer': int(row['years_to_cancer']),
+                    'years_to_last_followup': int(row['years_to_last_followup']),
                     'views': [],
                     'files': [],
                     'accession': accession
