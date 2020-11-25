@@ -31,7 +31,7 @@
     "block_layout": ["BasicBlock,2 BasicBlock,2 BasicBlock,2 BasicBlock,2"],
     "replace_bn_with_gn":[false],
     "num_chan": [3],
-    "tuning_metric": ["decile_recall"],
+    "tuning_metric": ["c_index"],
     "num_workers": [12],
     "objective": ["cross_entropy"],
     "optimizer": ["adam"],
