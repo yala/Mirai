@@ -28,7 +28,7 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
         :split_group: - ['train'|'dev'|'test'].
         :img_dir: - The path to the dir containing the images.
         """
-        
+
 
         dict_dataset = defaultdict(dict)
         for _row in self.metadata_json:
@@ -151,8 +151,11 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
         args.num_images = 4
         args.multi_image = True
         args.min_num_images =  4
+        args.class_bal = True
         args.test_image_transformers =  ["scale_2d", "align_to_left"]
         args.test_tensor_transformers =  ["force_num_chan_2d", "normalize_2d"]
+        args.image_transformers =  ["scale_2d", "align_to_left", "rand_ver_flip", "rotate_range/min=-20/max=20"]
+        args.tensor_transformers =  ["force_num_chan_2d", "normalize_2d"]
 
     @property
     def task(self):

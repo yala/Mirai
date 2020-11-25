@@ -16,6 +16,10 @@ class MiraiFull(nn.Module):
         else:
             self.image_encoder = get_model_by_name('custom_resnet', False, args)
 
+        if self.args.freeze_image_encoder:
+            for param in self.image_encoder.parameters():
+                param.requires_grad = False
+
         self.image_repr_dim = self.image_encoder._model.args.img_only_dim
         if args.transformer_snapshot is not None:
             self.transformer = load_model(args.transformer_snapshot, args, do_wrap_model=False)

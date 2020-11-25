@@ -34,11 +34,11 @@ The grid searches are shown in :
 
 The grid searches were run using our job-dispatcher, as shown bellow.
 
-`python scripts/dispatcher.py --alert_config_path /path/to/secret_for_sms.json --experiment_config_path configs/mirai_base.json --result_path mirai_base_sweep.csv`
+`python scripts/dispatcher.py --experiment_config_path configs/mirai_base.json --result_path mirai_base_sweep.csv`
 
 We selected the image encoder with the highest C-index on the development set, and leveraged it for the second stage hyper-parameter sweep.
 
-`python scripts/dispatcher.py --alert_config_path /path/to/secret_for_sms.json --experiment_config_path configs/mirai_full.json --result_path mirai_full_sweep.csv`
+`python scripts/dispatcher.py --experiment_config_path configs/mirai_full.json --result_path mirai_full_sweep.csv`
 
 We note that this command run relies on integrations that were specific to the MGH data, and so the exact line above will not run on your system. The configs above are meant to specify exact implementation details and our experimental procedure.
 
@@ -55,6 +55,11 @@ The full bash command (inside the validate.sh file) is:
 python scripts/main.py  --model_name mirai_full --img_encoder_snapshot snapshots/mgh_mammo_MIRAI_Base_May20_2019.p --transformer_snapshot snapshots/mgh_mammo_cancer_MIRAI_Transformer_Jan13_2020.p  --callibrator_snapshot snapshots/callibrators/MIRAI_FULL_PRED_RF.callibrator.p --batch_size 1 --dataset csv_mammo_risk_all_full_future --img_mean 7047.99 --img_size 1664 2048 --img_std 12005.5 --metadata_path demo/sample_metadata.csv --test --prediction_save_path demo/validation_output.csv
 ```
 
+Alternatively, you could launch the same validation script using our job-dispatcher with the following command:
+```
+python scripts/dispatcher.py --experiment_config_path configs/validate_mirai.json --result_path finetune_results.csv
+```
+
 What you need to validate the model:
 - Install the dependencies (see above)
 - Get access to the snapshot files (email adamyala@mit.edu)
@@ -69,7 +74,20 @@ What you need to validate the model:
     - `years_to_last_followup`: Integer reflecting how many years from the mammogram we know the patient is cancer free. For example, if a patient had a negative mammogram in 2010 (and this row corresponds to that mammogram), and we have negative followup until 2020, then enter 10.
     - `split_group`: Can take values `train`, `dev` or `test` to note the training, validation and testing samples.
 
+Before running `validate.sh`, make sure to replace `demo/sample_metadata.csv` with the path to your metadata path and to replace `demo/validation_output.csv` to wherever you want predictions will be saved.
+
 After running `validate.sh`, our code-base will print out the AUC for each time-point and save the predictions for each mammogram in `prediction_save_path`. For an example of the output file format, see `demo/validation_output.csv`. The key `patient_exam_id` is defined as `patient_id \tab exam_id`.
 
 ## How to fine-tune the model
+To finetune Mirai, you can use the following commands: `sh demo/finetune.sh`
+The full bash command (inside the validate.sh file) is:
+
+```
+python scripts/dispatcher.py --experiment_config_path configs/fine_tune_mirai.json --result_path finetune_results.csv
+```
+
+It create a grid search over possible fine-tuning hyperparameters (see `configs/finetune_mirai.json`) and launches jobs across the available GPUs (as defined in `available_gpus`). The results will be summarized in `finetune_results.csv` or wherever you set `results_path`. We note that each job launches just just a shell command. By editing `configs/finetune_mirai.json` or creating your own config json file, you can explore any hyper-parameters or architecture supported in the code base.
+
+What finetune the model, you will need the same dependencies, preprocessing and CSV file as listed above to validate Mirai. We recommend you first evaluate Mirai before you try to finetune it.
+
 

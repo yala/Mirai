@@ -120,7 +120,8 @@ if __name__ == '__main__':
             exams.extend( args.test_stats['exams'])
             probs.extend( args.test_stats['probs'])
         legend = ['patient_exam_id']
-        callibrator = pickle.load(open(args.callibrator_snapshot,'rb'))
+        if args.callibrator_snapshot is not None:
+            callibrator = pickle.load(open(args.callibrator_snapshot,'rb'))
         for i in range(args.max_followup):
             legend.append("{}_year_risk".format(i+1))
         export = {}
@@ -132,7 +133,10 @@ if __name__ == '__main__':
                 for i in range(args.max_followup):
                     key = "{}_year_risk".format(i+1)
                     raw_val = arr[i]
-                    val = callibrator[i].predict_proba([[raw_val]])[0,1]
+                    if args.callibrator_snapshot is not None:
+                        val = callibrator[i].predict_proba([[raw_val]])[0,1]
+                    else:
+                        val = raw_val
                     export[key] = val
                 writer.writerow(export)
         print("Exported predictions to {}".format(args.prediction_save_path))
