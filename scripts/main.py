@@ -109,3 +109,25 @@ if __name__ == '__main__':
         print("Save test results to {}".format(save_path))
         args_dict = vars(args)
         pickle.dump(args_dict, open(save_path, 'wb'))
+
+    if (args.dev or args.test) and args.prediction_save_path is not None:
+        exams = args.dev_stats['exams'] + args.test_stats['exams']
+        probs = args.dev_stats['probs'] + args.test_stats['probs']
+        import pdb; pdb.set_trace()
+        legend = ['patient_exam_id']
+        callibrator = pickle.load(open(args.callibrator_snapshot,'rb'))
+        for i in range(args.max_followup):
+            legend.append("{}_year_risk".format(i+1))
+        export = {}
+        with open(args.prediction_save_path,'w') as out_file:
+            for exam, arr in zip(exams, probs):
+                export['patient_exam_id'] = exam
+                for i in range(args.max_followup):
+                    key = "{}_year_risk".format(i+1)
+                    raw_val = arr[i]
+                    val = callibrator[index].predict_proba([[prob]])[0,1]
+                export[key] = val
+            write = csv.DictWrite(out_file, fieldnames=legend)
+            out_file.writerows(export)
+
+
