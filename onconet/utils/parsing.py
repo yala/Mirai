@@ -202,7 +202,8 @@ def parse_args():
     parser.add_argument('--pred_both_sides', action='store_true', default=False, help='Simulatenously pred both sides for multi-img model')
     parser.add_argument('--min_num_images', type=int, default=0, help='In multi image setting, the min number of images per single sample.')
     parser.add_argument('--video', action='store_true', default=False, help='Whether the data loaded will be videos (T, H, W, C) or images (H, W, C)')
-    parser.add_argument('--metadata_dir', type=str, default='/home/administrator/Mounts/Isilon/metadata', help='dir of metadata jsons.')
+    parser.add_argument('--metadata_dir', type=str, default=None, help='dir of metadata jsons.')
+    parser.add_argument('--metadata_path', type=str, default=None, help='path of metadata csv.')
     parser.add_argument('--cache_path', type=str, default=None, help='dir to cache images.')
     parser.add_argument('--drop_benign_side', action='store_true', default=False, help='If true, drops the samples from a beign breast on an exam that has a malignant one (one datasets that label by side)')
 
@@ -254,7 +255,7 @@ def parse_args():
     parser.add_argument('--pred_risk_factors_lambda',  type=float, default=0.25,  help='lambda to weigh the risk factor prediction.')
     parser.add_argument('--use_pred_risk_factors_at_test', action='store_true', default=False, help='Whether to use predicted risk factor values at test time.') #
     parser.add_argument('--use_pred_risk_factors_if_unk', action='store_true', default=False, help='Whether to use predicted risk factor values at test time only if rf is unk.') #
-    parser.add_argument('--risk_factor_keys', nargs='*', default=[], help='List of risk factors to include in risk factor vector.')
+    parser.add_argument('--risk_factor_keys', nargs='*', default=['density', 'binary_family_history', 'binary_biopsy_benign', 'binary_biopsy_LCIS', 'binary_biopsy_atypical_hyperplasia', 'age', 'menarche_age', 'menopause_age', 'first_pregnancy_age', 'prior_hist', 'race', 'parous', 'menopausal_status', 'weight','height', 'ovarian_cancer', 'ovarian_cancer_age', 'ashkenazi', 'brca', 'mom_bc_cancer_history', 'm_aunt_bc_cancer_history', 'p_aunt_bc_cancer_history', 'm_grandmother_bc_cancer_history', 'p_grantmother_bc_cancer_history', 'sister_bc_cancer_history', 'mom_oc_cancer_history', 'm_aunt_oc_cancer_history', 'p_aunt_oc_cancer_history', 'm_grandmother_oc_cancer_history', 'p_grantmother_oc_cancer_history', 'sister_oc_cancer_history', 'hrt_type', 'hrt_duration', 'hrt_years_ago_stopped'], help='List of risk factors to include in risk factor vector.')
     parser.add_argument('--risk_factor_metadata_path', type=str, default='/home/administrator/Mounts/Isilon/metadata/risk_factors_jul22_2018_mammo_and_mri.json', help='Path to risk factor metadata file.')
     #survival analysis setup
     parser.add_argument('--survival_analysis_setup', action='store_true', default=False, help='Whether to modify model, eval and training for survival analysis.') #
@@ -296,6 +297,7 @@ def parse_args():
     parser.add_argument('--dropout', type=float, default=0.25, help='Amount of dropout to apply on last hidden layer [default: 0.25]')
     parser.add_argument('--save_dir', type=str, default='snapshot', help='where to dump the model')
     parser.add_argument('--results_path', type=str, default='logs/snapshot', help='where to save the result logs')
+    parser.add_argument('--prediction_save_path', type=str, default=None, help='where to save the predictions for dev and test sets')
     parser.add_argument('--no_tuning_on_dev', action='store_true', default=False,  help='Train without tuning on dev (no adaptive lr reduction or saving best model based on dev)')
     parser.add_argument('--lr_reduction_interval', type=int, default=1, help='Number of epochs to wait before reducing lr when training without adaptive lr reduction.')
     parser.add_argument('--data_fraction', type=float, default=1.0, help='Fraction of data to use, i.e 1.0 for all and 0 for none. Used for learning curve analysis.')
@@ -312,6 +314,7 @@ def parse_args():
     parser.add_argument('--state_dict_path', type=str, default=None, help='filename of model snapshot to load[default: None]')
     parser.add_argument('--img_encoder_snapshot', type=str, default=None, help='filename of img_feat_extractor model snapshot to load. Only used for mirai_full type models [default: None]')
     parser.add_argument('--transformer_snapshot', type=str, default=None, help='filename of transformer model snapshot to load. Only used for mirai_full type models [default: None]')
+    parser.add_argument('--callibrator_snapshot', type=str, default=None, help='filename of callibrator. Produced for a single model on development set using Platt Scaling')
     parser.add_argument('--patch_snapshot', type=str, default=None, help='filename of patch model snapshot to load. Only used for aggregator type models [default: None]')
     parser.add_argument('--pretrained_on_imagenet', action='store_true', default=False, help='Pretrain the model on imagenet. Only relevant for default models like VGG, resnet etc')
     parser.add_argument('--pretrained_imagenet_model_name', type=str, default='resnet18', help='Name of pretrained model to load for custom resnets.')
@@ -393,9 +396,6 @@ def validate_args(args):
 
     if args.class_bal and args.year_weighted_class_bal:
         raise ValueError(CONFLICTING_WEIGHTED_SAMPLING_ERR)
-
-    if args.survival_analysis_setup != ('_full_future' in args.dataset):
-        raise ValueError(INVALID_DATASET_FOR_SURVIVAL)
 
     assert args.ten_fold_test_index in range(-1, 10)
 
