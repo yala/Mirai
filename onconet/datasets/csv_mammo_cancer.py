@@ -59,6 +59,9 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
         for mrn_row in tqdm.tqdm(metadata):
             ssn, exams = mrn_row['pid'],  mrn_row['exams']
 
+            if mrn_row['split'] != split_group:
+                continue
+
             for accession, exam in exams.items():
 
                 if self.check_label(exam):
