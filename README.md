@@ -37,12 +37,34 @@ We selected the image encoder with the highest C-index on the development set, a
 
 We note that this command run relies on integrations that were specific to the MGH data, and so the exact line above will not run on your system. The configs above are meant to specify exact implementation details and our experimental procedure.
 
-# Installing Mirai for clinical use
-Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for deploying mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files.
+# Using Mirai
+Mirai (the trained model) is available for research-use upon request (email adamyala@mit.edu). If you are interested in using, validating or adapting the model, please don't hesitate to reach out. This tool is provided for research purposes only and no responsibility is accepted for clinical decisions arising from its use. Commercial use requires a license (contact tlo@mit.edu), for further information please email adamyala@mit.edu.
 
-# How validate the model on a large dataset
+## Installing Mirai for clinical use
+Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for deploying mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
 
+## How validate the model on a large dataset
+To validate Mirai, you can use the following command: `sh demo/validate.sh`
+The full bash command (inside the validate.sh file) is:
+```
+python scripts/main.py  --model_name mirai_full --img_encoder_snapshot snapshots/mgh_mammo_MIRAI_Base_May20_2019.p --transformer_snapshot snapshots/mgh_mammo_cancer_MIRAI_Transformer_Jan13_2020.p  --callibrator_snapshot snapshots/callibrators/MIRAI_FULL_PRED_RF.callibrator.p --batch_size 1 --dataset csv_mammo_risk_all_full_future --img_mean 7047.99 --img_size 1664 2048 --img_std 12005.5 --metadata_path demo/sample_metadata.csv --test --prediction_save_path demo/validation_output.csv
+```
 
+What you need to validate the model:
+- Install the dependencies (see above)
+- Get access to the snapshot files (email adamyala@mit.edu)
+- Convert your dicoms to PNGs (see above)
+- Create a CSV file describing your dataset. For an example, see `demo/sample_metadata.csv`. We note that all the columns are required.
+    - `patient_id`: ID string for this patient. Is used to link together mammograms for one patient.
+    - `exam_id`: ID string for this mammogram. Is used to link together several files for one mammogram. Note, this code-base assumes that "patient_id + exam_id" is the unique key for a mammogram.
+    - `laterality`: Laterality of the mammogram. Can only take values 'R' or 'L' for right and left.
+    - `view`: View of the dicom. Can only take values 'MLO' or 'CC'. Other views are not supported.
+    - `file_path`: Absolute path to the PNG16 image for this view of the mammogram
+    - `years_to_cancer`: Integer the number of years from this mammogram that the patient was diagnosed with breast cancer. If the patient doesn't develop cancer during the observed data, enter 100. If the cancer was found on this mammogram, enter 0.
+    - `years_to_last_followup`: Integer reflecting how many years from the mammogram we know the patient is cancer free. For example, if a patient had a negative mammogram in 2010 (and this row corresponds to that mammogram), and we have negative followup until 2020, then enter 10.
+    - `split_group`: Can take values `train`, `dev` or `test` to note the training, validation and testing samples.
 
-# How to fine-tune the model
+After running `validate.sh`, our code-base will print out the AUC for each time-point and save the predictions for each mammogram in `prediction_save_path`. For an example of the output file format, see `demo/validation_output.csv`. The key `patient_exam_id` is defined as `patient_id \tab exam_id`.
+
+## How to fine-tune the model
 
