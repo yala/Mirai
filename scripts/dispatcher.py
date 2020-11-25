@@ -4,7 +4,6 @@ import os
 import multiprocessing
 import pickle
 import csv
-from twilio.rest import Client
 import json
 import sys
 from os.path import dirname, realpath
@@ -31,31 +30,13 @@ SORT_KEY = 'dev_loss'
 
 parser = argparse.ArgumentParser(description='OncoNet Grid Search Dispatcher. For use information, see `doc/README.md`')
 parser.add_argument("--experiment_config_path", required=True, type=str, help="Path of experiment config")
-parser.add_argument("--alert_config_path", type=str, default='configs/alert_config.json', help="Path of alert config")
 parser.add_argument('--log_dir', type=str, default="logs", help="path to store logs and detailed job level result files")
 parser.add_argument('--result_path', type=str, default="results/grid_search.csv", help="path to store grid_search table. This is preferably on shared storage")
 parser.add_argument('--rerun_experiments', action='store_true', default=False, help='whether to rerun experiments with the same result file location')
 parser.add_argument('--shuffle_experiment_order', action='store_true', default=False, help='whether to shuffle order of experiments')
 
 
-def send_text_msg(msg, alert_config, twilio_config):
-    '''
-    Send a text message using twilio acct specified twilio conf to numbers
-    specified in alert_conf.
-    If suppress_alerts is turned on, do nothing
-    :msg: - body of text message
-    :alert_config: - dictionary with a list fo numbers to send message to
-    :twilio-config: - dictionary with twilio SID, TOKEN, and phone number
-    '''
-    if alert_config['suppress_alerts']:
-        return
-    client = Client(twilio_config['ACCOUNT_SID'], twilio_config['AUTH_TOKEN'])
-    for number in [alert_config['alert_nums']]:
-        client.messages.create(
-            to=number, from_=twilio_config['twilio_num'], body=msg)
-
-
-def launch_experiment(gpu, flag_string, alert_conf, twilio_conf):
+def launch_experiment(gpu, flag_string):
     '''
     Launch an experiment and direct logs and results to a unique filepath.
     Alert of something goes wrong.
@@ -89,12 +70,12 @@ def launch_experiment(gpu, flag_string, alert_conf, twilio_conf):
     if not os.path.exists(results_path):
         # running this process failed, alert me
         job_fail_msg = EXPERIMENT_CRASH_MSG.format(experiment_string, log_path)
-        send_text_msg(job_fail_msg, alert_conf, twilio_conf)
+        print(job_fail_msg)
 
     return results_path, log_path
 
 
-def worker(gpu, job_queue, done_queue, alert_config, twilio_config):
+def worker(gpu, job_queue, done_queue):
     '''
     Worker thread for each gpu. Consumes all jobs and pushes results to done_queue.
     :gpu - gpu this worker can access.
@@ -106,7 +87,7 @@ def worker(gpu, job_queue, done_queue, alert_config, twilio_config):
         if params is None:
             return
         done_queue.put(
-            launch_experiment(gpu, params, alert_config, twilio_config))
+            launch_experiment(gpu, params))
 
 def update_sumary_with_results(result_path, log_path, experiment_axies,  summary):
     assert result_path is not None
@@ -181,19 +162,6 @@ if __name__ == "__main__":
         print(RESULTS_PATH_APPEAR_ERR)
         sys.exit(1)
 
-    if not os.path.exists(args.alert_config_path):
-        print(CONFIG_NOT_FOUND_MSG.format("alert", args.alert_config_path))
-        sys.exit(1)
-    alert_config = json.load(open(args.alert_config_path, 'r'))
-
-    twilio_conf_path = alert_config['path_to_twilio_secret']
-    if not os.path.exists(twilio_conf_path):
-        print(CONFIG_NOT_FOUND_MSG.format("twilio", twilio_conf_path))
-
-    twilio_config = None
-    if not alert_config['suppress_alerts']:
-        twilio_config = json.load(open(twilio_conf_path, 'r'))
-
     job_list, experiment_axies = parsing.parse_dispatcher_config(experiment_config)
     if args.shuffle_experiment_order:
         random.shuffle(job_list)
@@ -206,7 +174,7 @@ if __name__ == "__main__":
     print()
     for gpu in experiment_config['available_gpus']:
         print("Start gpu worker {}".format(gpu))
-        multiprocessing.Process(target=worker, args=(gpu, job_queue, done_queue, alert_config, twilio_config)).start()
+        multiprocessing.Process(target=worker, args=(gpu, job_queue, done_queue)).start()
     print()
 
     summary = []
@@ -219,4 +187,3 @@ if __name__ == "__main__":
         summary = update_sumary_with_results(result_path, log_path, experiment_axies, summary)
         dump_result_string = SUCESSFUL_SEARCH_STR.format(args.result_path)
         print("({}/{}) \t {}".format(i+1, len(job_list), dump_result_string))
-    send_text_msg(dump_result_string, alert_config, twilio_config)
