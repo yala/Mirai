@@ -126,13 +126,14 @@ if __name__ == '__main__':
         export = {}
         with open(args.prediction_save_path,'w') as out_file:
             writer = csv.DictWriter(out_file, fieldnames=legend)
+            writer.writeheader()
             for exam, arr in zip(exams, probs):
                 export['patient_exam_id'] = exam
                 for i in range(args.max_followup):
                     key = "{}_year_risk".format(i+1)
                     raw_val = arr[i]
                     val = callibrator[i].predict_proba([[raw_val]])[0,1]
-                export[key] = val
+                    export[key] = val
                 writer.writerow(export)
         print("Exported predictions to {}".format(args.prediction_save_path))
 
