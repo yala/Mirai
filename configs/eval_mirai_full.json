@@ -55,7 +55,7 @@
     "model_parallel": [false],
     "num_gpus":[1],
     "num_shards":[1],
-    "use_risk_factors": [true],
+    "use_risk_factors": [false],
     "dropout": [0],
     "max_followup": [5],
     "risk_factor_metadata_path": ["/Mounts/Isilon/metadata/risk_factors_aug06_2018_mammo_and_mri.json"],

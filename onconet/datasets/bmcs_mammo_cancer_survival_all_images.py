@@ -136,7 +136,7 @@ class BMCS_Mammo_Cancer_Survival_All_Images_Dataset_All_Device(Abstract_Onco_Dat
 
     @property
     def METADATA_FILENAME(self):
-        return 'BMCS_metadata_final.json'
+        return 'BMCS_metadata_sigmoid_final.json'#'BMCS_metadata_no_R2_CAD_final.json'
 
     @staticmethod
     def set_args(args):
