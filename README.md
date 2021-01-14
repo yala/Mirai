@@ -48,7 +48,24 @@ Mirai (the trained model) is available for research-use upon request (email adam
 ## Installing Mirai for clinical use
 Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for deploying mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
 
-## How validate the model on a large dataset
+## Using Mirai Codebase (Validation / Finetuning)
+
+To use the Mirai code-base, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
+
+```
+docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.3.0 /bin/zsh
+```
+This command will enter the docker container and make your data directory (with dicoms and outcomes) available to the container at the /data directory. Inside the docker container, you will find this repository in the `/root/OncoNet/` directory. For there, you can run the validation or fine tuning scripts. 
+
+### Preprocessing DICOMS with OncoData
+The `oncoserve_mirai` docker image already contains [OncoData](https://github.com/yala/OncoData_Public), our codebase for preprocessing dicoms. To convert a directory of dicoms into PNGs, follow the following steps:
+```
+cd /root/OncoData
+python scripts/dicom_to_png/dicom_to_png.py --dcmtk --dicom_dir /PATH/TO/DICOMS --png_dir /PATH/TO/PNG_DIR 
+```
+Note, OncoData assumes that each dicom file has a `.dcm` suffix. This repo is tested to work well with Hologic dicoms, but may not properly convert dicoms from other manufacturers. 
+
+### How validate the model on a large dataset
 To validate Mirai, you can use the following command: `sh demo/validate.sh`
 The full bash command (inside the validate.sh file) is:
 ```
@@ -78,7 +95,7 @@ Before running `validate.sh`, make sure to replace `demo/sample_metadata.csv` wi
 
 After running `validate.sh`, our code-base will print out the AUC for each time-point and save the predictions for each mammogram in `prediction_save_path`. For an example of the output file format, see `demo/validation_output.csv`. The key `patient_exam_id` is defined as `patient_id \tab exam_id`.
 
-## How to fine-tune the model
+### How to fine-tune the model
 To finetune Mirai, you can use the following commands: `sh demo/finetune.sh`
 The full bash command (inside the validate.sh file) is:
 
