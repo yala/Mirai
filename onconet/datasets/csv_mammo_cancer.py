@@ -44,8 +44,8 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
                 dict_dataset[patient_id]['exams'] = {}
             if accession not in dict_dataset[patient_id]['exams']:
                 dict_dataset[patient_id]['exams'][accession] = {
-                    'years_to_cancer': int(row['years_to_cancer']),
-                    'years_to_last_followup': int(row['years_to_last_followup']),
+                    'years_to_cancer': int(float(row['years_to_cancer'])),
+                    'years_to_last_followup': int(float(row['years_to_last_followup'])),
                     'views': [],
                     'files': [],
                     'accession': accession
@@ -112,7 +112,7 @@ class CSV_Mammo_Cancer_Survival_All_Images_Dataset(Abstract_Onco_Dataset):
         return statement
 
     def check_label(self, row):
-        valid_pos = row['years_to_cancer'] < self.args.max_followup
+        valid_pos = row['years_to_cancer'] < self.args.max_followup and row['years_to_cancer'] >= 0
         valid_neg = row['years_to_last_followup'] > 0
 
         return (valid_pos or valid_neg)
