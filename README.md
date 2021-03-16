@@ -110,4 +110,4 @@ What finetune the model, you will need the same dependencies, preprocessing and 
 
 
 #### Copyright
-Copyright MIT, MGH 2021. 
+Copyright Notice and Disclaimer. The software is Mirai Software, © MIT and MGH 2021 used with permission.  All Rights Reserved.
