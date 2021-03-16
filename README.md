@@ -108,3 +108,6 @@ It create a grid search over possible fine-tuning hyperparameters (see `configs/
 What finetune the model, you will need the same dependencies, preprocessing and CSV file as listed above to validate Mirai. We recommend you first evaluate Mirai before you try to finetune it.
 
 
+
+#### Copyright
+Copyright MIT, MGH 2021. 
