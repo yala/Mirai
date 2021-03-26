@@ -168,7 +168,7 @@ def pad_to_length(arr, pad_token, max_length):
 
 
 @RegisterDataset("csv_mammo_risk_full_future")
-class CSV_Mammo_Cancer_Survival_Dataset(Abstract_Onco_Dataset):
+class CSV_Mammo_Cancer_Survival_Dataset(CSV_Mammo_Cancer_Survival_All_Images_Dataset):
 
     '''
         Working dataset for suvival analysis. Note, does not support invasive cancer yet.
@@ -196,8 +196,8 @@ class CSV_Mammo_Cancer_Survival_Dataset(Abstract_Onco_Dataset):
                 dict_dataset[patient_id]['exams'] = {}
             if accession not in dict_dataset[patient_id]['exams']:
                 dict_dataset[patient_id]['exams'][accession] = {
-                    'years_to_cancer': int(row['years_to_cancer']),
-                    'years_to_last_followup': int(row['years_to_last_followup']),
+                    'years_to_cancer': int(float(row['years_to_cancer'])),
+                    'years_to_last_followup': int(float(row['years_to_last_followup'])),
                     'views': [],
                     'files': [],
                     'accession': accession
@@ -232,7 +232,7 @@ class CSV_Mammo_Cancer_Survival_Dataset(Abstract_Onco_Dataset):
                             'time_at_event': time_at_event,
                             'exam': exam['accession'],
                             'ssn': ssn,
-                            'additionals': [],
+                            'additional': {},
                             ### For back compatiblity with risk models that predict Left and right risk seperately
                             'year': -1,
                             'y_l': y,
