@@ -166,3 +166,99 @@ def pad_to_length(arr, pad_token, max_length):
     arr = arr[-max_length:]
     return  np.array( [pad_token]* (max_length - len(arr)) + arr)
 
+
+@RegisterDataset("csv_mammo_risk_full_future")
+class CSV_Mammo_Cancer_Survival_Dataset(Abstract_Onco_Dataset):
+
+    '''
+        Working dataset for suvival analysis. Note, does not support invasive cancer yet.
+    '''
+    def create_dataset(self, split_group, img_dir):
+        """
+        Return the dataset from the paths and labels in the json.
+
+        :split_group: - ['train'|'dev'|'test'].
+        :img_dir: - The path to the dir containing the images.
+        """
+
+
+        dict_dataset = defaultdict(dict)
+        for _row in self.metadata_json:
+            row = {k.encode('ascii', 'ignore').decode(): v.encode('ascii', 'ignore').decode() for k,v in _row.items()}
+            patient_id, exam_id, split  = row['patient_id'], row['exam_id'], row['split_group']
+            view = "{} {}".format(row['laterality'], row['view'])
+            accession = "{}\t{}".format(patient_id, exam_id)
+            file = row['file_path']
+
+            dict_dataset[patient_id]['split'] = split
+            dict_dataset[patient_id]['pid'] = patient_id
+            if 'exams' not in dict_dataset[patient_id]:
+                dict_dataset[patient_id]['exams'] = {}
+            if accession not in dict_dataset[patient_id]['exams']:
+                dict_dataset[patient_id]['exams'][accession] = {
+                    'years_to_cancer': int(row['years_to_cancer']),
+                    'years_to_last_followup': int(row['years_to_last_followup']),
+                    'views': [],
+                    'files': [],
+                    'accession': accession
+                }
+            dict_dataset[patient_id]['exams'][accession]['views'].append(view)
+            dict_dataset[patient_id]['exams'][accession]['files'].append(file)
+
+        metadata = dict_dataset.values()
+        dataset = []
+
+        for mrn_row in tqdm.tqdm(metadata):
+            ssn, exams = mrn_row['pid'],  mrn_row['exams']
+
+            if mrn_row['split'] != split_group:
+                continue
+
+            for accession, exam in exams.items():
+
+                if self.check_label(exam):
+                    left_ccs, left_mlos, right_ccs, right_mlos = self.image_paths_by_views(exam)
+
+
+
+                    y, y_seq, y_mask, time_at_event = self.get_label(exam)
+
+                    for path in  left_ccs + left_mlos + right_ccs + right_mlos:
+                        dataset.append({
+                            'path': path,
+                            'y': y,
+                            'y_mask': y_mask,
+                            'y_seq': y_seq,
+                            'time_at_event': time_at_event,
+                            'exam': exam['accession'],
+                            'ssn': ssn,
+                            'additionals': [],
+                            ### For back compatiblity with risk models that predict Left and right risk seperately
+                            'year': -1,
+                            'y_l': y,
+                            'y_mask_l': y_mask,
+                            'y_seq_l': y_seq,
+                            'time_at_event_l': time_at_event,
+                            'y_r': y,
+                            'y_mask_r': y_mask,
+                            'y_seq_r': y_seq,
+                            'time_at_event_r': time_at_event
+                        })
+        return dataset
+
+    @staticmethod
+    def set_args(args):
+        args.num_classes = 2
+        args.max_followup = 5
+        args.risk_factor_keys = ['density', 'binary_family_history', 'binary_biopsy_benign', 'binary_biopsy_LCIS', 'binary_biopsy_atypical_hyperplasia', 'age', 'menarche_age', 'menopause_age', 'first_pregnancy_age', 'prior_hist', 'race', 'parous', 'menopausal_status', 'weight','height', 'ovarian_cancer', 'ovarian_cancer_age', 'ashkenazi', 'brca', 'mom_bc_cancer_history', 'm_aunt_bc_cancer_history', 'p_aunt_bc_cancer_history', 'm_grandmother_bc_cancer_history', 'p_grantmother_bc_cancer_history', 'sister_bc_cancer_history', 'mom_oc_cancer_history', 'm_aunt_oc_cancer_history', 'p_aunt_oc_cancer_history', 'm_grandmother_oc_cancer_history', 'p_grantmother_oc_cancer_history', 'sister_oc_cancer_history', 'hrt_type', 'hrt_duration', 'hrt_years_ago_stopped']
+        args.metadata_dir = None
+        args.pred_risk_factors = True
+        args.use_pred_risk_factors_at_test = True
+        args.survival_analysis_setup = True
+        args.class_bal = True
+        args.test_image_transformers =  ["scale_2d", "align_to_left"]
+        args.test_tensor_transformers =  ["force_num_chan_2d", "normalize_2d"]
+        args.image_transformers =  ["scale_2d", "align_to_left", "rand_ver_flip", "rotate_range/min=-20/max=20"]
+        args.tensor_transformers =  ["force_num_chan_2d", "normalize_2d"]
+
+
