@@ -17,7 +17,7 @@ The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
-If you are familiar with docker, you can also directly leverage the OncoServe [docker container](https://www.dropbox.com/s/8nlyb5q8ppfh085/oncoserve_mirai.0.4.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
+If you are familiar with docker, you can also directly leverage the OncoServe [Mirai docker container](https://www.dropbox.com/s/8nlyb5q8ppfh085/oncoserve_mirai.0.4.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
 
 ## Preprocessing
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
