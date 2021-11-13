@@ -17,7 +17,7 @@ The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
-If you are familiar with docker, you can also directly leverage the OncoServe docker container which has all the depedencies preinstalled(see below).
+If you are familiar with docker, you can also directly leverage the OncoServe [docker container](https://www.dropbox.com/s/8nlyb5q8ppfh085/oncoserve_mirai.0.4.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
 
 ## Preprocessing
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
@@ -43,7 +43,7 @@ We selected the image encoder with the highest C-index on the development set, a
 We note that this command run relies on integrations that were specific to the MGH data, and so the exact line above will not run on your system. The configs above are meant to specify exact implementation details and our experimental procedure.
 
 # Using Mirai
-Mirai (the trained model) is available for research-use upon request (email adamyala@mit.edu). If you are interested in using, validating or adapting the model, please don't hesitate to reach out. This tool is provided for research purposes only and no responsibility is accepted for clinical decisions arising from its use. Commercial use requires a license (contact tlo@mit.edu), for further information please email adamyala@mit.edu.
+Mirai (the trained model) and all code are released under the MIT license. 
 
 ## Installing Mirai for clinical use
 Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for deploying mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
@@ -79,7 +79,7 @@ python scripts/dispatcher.py --experiment_config_path configs/validate_mirai.jso
 
 What you need to validate the model:
 - Install the dependencies (see above)
-- Get access to the snapshot files (email adamyala@mit.edu)
+- Get access to the snapshot files (in snapshots folder of docker container)
 - Convert your dicoms to PNGs (see above)
 - Create a CSV file describing your dataset. For an example, see `demo/sample_metadata.csv`. We note that all the columns are required.
     - `patient_id`: ID string for this patient. Is used to link together mammograms for one patient.
@@ -107,7 +107,3 @@ It create a grid search over possible fine-tuning hyperparameters (see `configs/
 
 What finetune the model, you will need the same dependencies, preprocessing and CSV file as listed above to validate Mirai. We recommend you first evaluate Mirai before you try to finetune it.
 
-
-
-#### Copyright
-Copyright Notice and Disclaimer. The software is Mirai Software, © MIT and MGH 2021 used with permission.  All Rights Reserved.
