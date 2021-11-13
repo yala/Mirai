@@ -53,7 +53,7 @@ Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework 
 To use the Mirai code-base, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
 
 ```
-docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.3.0 /bin/zsh
+docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.4.0 /bin/zsh
 ```
 This command will enter the docker container and make your data directory (with dicoms and outcomes) available to the container at the /data directory. Inside the docker container, you will find this repository in the `/root/OncoNet/` directory. For there, you can run the validation or fine tuning scripts. 
 
