@@ -6,7 +6,6 @@ numpy
 Pillow
 tqdm
 mock
-statsmodels
 scikit-image
 imageio
 gitpython
