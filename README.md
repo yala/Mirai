@@ -17,7 +17,7 @@ The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
-If you are familiar with docker, you can also directly leverage the OncoServe [Mirai docker container](https://www.dropbox.com/s/k0wq2z7xqr95y3b/oncoserve_mirai.0.5.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
+If you are familiar with docker, you can also directly leverage the OncoServe Mirai docker container which has all the depedencies preinstalled and the trained Mirai model (see below).
 
 ## Preprocessing
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
@@ -43,10 +43,10 @@ We selected the image encoder with the highest C-index on the development set, a
 We note that this command run relies on integrations that were specific to the MGH data, and so the exact line above will not run on your system. The configs above are meant to specify exact implementation details and our experimental procedure.
 
 # Using Mirai
-Mirai (the trained model) and all code are released under the MIT license. 
+Mirai (the trained model) and all code are released under the MIT license. This tool is intended for research use. Users are responsible for following local regulatory rules concerning research.
 
 ## Installing Mirai for clinical use
-Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for deploying mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
+Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for prospectively testing mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
 
 ## Using Mirai Codebase (Validation / Finetuning)
 
