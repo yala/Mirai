@@ -4,12 +4,12 @@
 This repository was used to develop Mirai, the risk model described in: [Towards Robust Mammography-Based Models for Breast Cancer Risk](https://www.science.org/doi/10.1126/scitranslmed.aba4373). Mirai was designed to predict risk at multiple time points, leverage potentially missing risk-factor information, and produce predictions that are consistent across mammography machines. Mirai was trained on a large dataset from Massachusetts General Hospital (MGH) in the US and was tested on held-out test sets from MGH, Karolinska in Sweden and Chang Gung Memorial Hospital in Taiwan, obtaining C-indices of 0.76 (0.74, 0.80), 0.81 (0.79, 0.82), 0.79 (0.79, 0.83), respectively. Mirai obtained significantly higher five-year ROC AUCs than the Tyrer-Cuzick model (p<0.001) and prior deep learning models, Hybrid DL (p<0.001) and ImageOnly DL (p<0.001), trained on the same MGH dataset. In our paper, we also demonstrate that Mirai was more significantly accurate in identifying high risk patients than prior methods across all datasets. On the MGH test set, 41.5% (34.4, 48.5) of patients who would develop cancer within five-years were identified as high risk, compared to 36.1% (29.1, 42.9) by Hybrid DL (p=0.02) and 22.9% (15.9, 29.6) by Tyrer-Cuzick lifetime risk (p<0.001).
 
 This code base is meant to achieve a few goals:
-- Provide exact implementation details for the development of Mirai
-- Help researchers to install Mirai for clinical workflows
-- Help researchers to validate Mirai on large datasets
-- Help researchers to fine-tune Mirai on large datasets
+- Provide exact implementation details for the development of Mirai to facilitate review of our paper 
+- Enable researchers to validate or further refine Mirai on large datasets 
 
 We note that this code-base is an extension of [OncoNet](https://github.com/yala/OncoNet_Public), which we used to develop Hybrid DL and ImageOnly DL.
+
+This repository is intended for researchers assessing the manuscript and researching model development and validation.  The code base is not intended to be deployed for generating predictions for use in clinical-decision making or for any other clinical use.  You bear sole responsibility for your use of Mirai.
 
 ## Aside on Software Depedencies
 This code assumes python3.6 and a Linux environment.
@@ -17,7 +17,7 @@ The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
-If you are familiar with docker, you can also directly leverage the OncoServe Mirai docker container which has all the depedencies preinstalled and the trained Mirai model (see below).
+If you are familiar with docker, you can also directly leverage the OncoServe [Mirai docker container](https://www.dropbox.com/s/k0wq2z7xqr95y3b/oncoserve_mirai.0.5.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
 
 ## Preprocessing
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
@@ -43,14 +43,13 @@ We selected the image encoder with the highest C-index on the development set, a
 We note that this command run relies on integrations that were specific to the MGH data, and so the exact line above will not run on your system. The configs above are meant to specify exact implementation details and our experimental procedure.
 
 # Using Mirai
-Mirai (the trained model) and all code are released under the MIT license. This tool is intended for research use. Users are responsible for following local regulatory rules concerning research.
+Mirai (the trained model) and all code are released under the MIT license. 
 
-## Installing Mirai for clinical use
+## Installing Mirai
 Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for prospectively testing mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
 
-## Using Mirai Codebase (Validation / Finetuning)
-
-To use the Mirai code-base, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
+## Using Mirai Codebase (Validation / Refinement)
+To use the Mirai code-base research purposes, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
 
 ```
 docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.5.0 /bin/zsh
@@ -95,8 +94,8 @@ Before running `validate.sh`, make sure to replace `demo/sample_metadata.csv` wi
 
 After running `validate.sh`, our code-base will print out the AUC for each time-point and save the predictions for each mammogram in `prediction_save_path`. For an example of the output file format, see `demo/validation_output.csv`. The key `patient_exam_id` is defined as `patient_id \tab exam_id`.
 
-### How to fine-tune the model
-To finetune Mirai, you can use the following commands: `sh demo/finetune.sh`
+### How to refine the model
+To finetune Mirai for research purposes, you can use the following commands: `sh demo/finetune.sh`
 The full bash command (inside the validate.sh file) is:
 
 ```
