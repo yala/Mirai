@@ -161,7 +161,7 @@ class image_loader():
         all_transformers = self.split_transformers[-1][1]
         image = Image.open(path)
         image = apply_transformers_and_cache(image, additional, path, all_transformers,
-                                             self.cache)
+                                             self.cache, cache_full_size=True)
         return image
 
     def get_images(self, paths, additionals):
