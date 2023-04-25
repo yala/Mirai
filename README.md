@@ -17,7 +17,7 @@ The package requirements can be install with pip:
 
 `pip install -r requirements.txt`
 
-If you are familiar with docker, you can also directly leverage the OncoServe [Mirai docker container](https://www.dropbox.com/s/8nlyb5q8ppfh085/oncoserve_mirai.0.4.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
+If you are familiar with docker, you can also directly leverage the OncoServe [Mirai docker container](https://www.dropbox.com/s/k0wq2z7xqr95y3b/oncoserve_mirai.0.5.0.tar?dl=0) which has all the depedencies preinstalled and the trained Mirai model (see below).
 
 ## Preprocessing
 Our code-base operates on PNG images. We converted presentation view dicoms to PNG16 files using the DCMTK library. We used the dcmj2pnm program (v3.6.1, 2015) with +on2 and–min-max-window flags. To this, you can use DCMTK directly or [OncoData](https://github.com/yala/OncoData_Public), our python wrapper for converting dicoms.
@@ -53,7 +53,7 @@ Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework 
 To use the Mirai code-base, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
 
 ```
-docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.4.0 /bin/zsh
+docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.5.0 /bin/zsh
 ```
 This command will enter the docker container and make your data directory (with dicoms and outcomes) available to the container at the /data directory. Inside the docker container, you will find this repository in the `/root/OncoNet/` directory. For there, you can run the validation or fine tuning scripts. 
 
