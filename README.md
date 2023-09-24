@@ -49,7 +49,7 @@ Mirai (the trained model) and all code are released under the MIT license.
 Please see [OncoServe](https://github.com/yala/OncoServe_Public), our framework for prospectively testing mammography-based models in the clinic. OncoServe can be easily installed on premise using Docker, and it provides a simple HTTP interface to get risk assessments for a given patient's dicom files. OncoServe encapsulates all the dependencies and necessary preprocessing.
 
 ## Using Mirai Codebase (Validation / Refinement)
-To use the Mirai code-base research purposes, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Please directly reach out for access. Once you have the docker image, you may enter it as follows:
+To use the Mirai code-base research purposes, we recommend using our [OncoServe](https://github.com/yala/OncoServe_Public) docker image. Once you have the docker image, you may enter it as follows:
 
 ```
 docker run -it -v /PATH/TO/DATA_DIR:/data:z learn2cure/oncoserve_mirai:0.5.0 /bin/zsh
