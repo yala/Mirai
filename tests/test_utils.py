@@ -13,13 +13,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import onconet.utils.parsing as parsing
 import onconet.utils.generic as generic
-import onconet.train.state_keeper as state
+import onconet.learn.state_keeper as state
 import datetime
 
 class Test_parse_transformers(unittest.TestCase):
     def setUp(self):
         self.err_msg = "Name of transformer or one of its arguments cant be empty\n\
-                  Use 'name/arg1=value/arg2=value' format"
+                  Use \"name/arg1=value/arg2=value\" format"
 
     def tearDown(self):
         pass
@@ -238,6 +238,7 @@ class Test_state_keeping(unittest.TestCase):
         self.parser.add_argument('--age', default=10)
         self.parser.add_argument('--siblings', default=["alice", "bob"])
         self.parser.add_argument('--save_dir', default=tempfile.mkdtemp())
+        self.parser.add_argument('--use_adv', action='store_true', default=False)
         self.epoch = 10
         self.lr = 0.001
         self.epoch_stats = {}
@@ -256,12 +257,12 @@ class Test_state_keeping(unittest.TestCase):
         model_dict = self.model.state_dict()
         optimizer_dict = self.optimizer.state_dict()
 
-        state_keeper.save(self.model, self.optimizer, self.epoch, self.lr, self.epoch_stats)
+        state_keeper.save({'model': self.model}, {'model': self.optimizer}, self.epoch, self.lr, self.epoch_stats)
         new_model, new_optimizer_state, new_epoch, new_lr, _ = state_keeper.load()
 
         for key in model_dict.keys():
-            self.assertTrue(np.array_equal(model_dict[key].numpy(), new_model.state_dict()[key].numpy()))
-        self.assertEqual(optimizer_dict, new_optimizer_state)
+            self.assertTrue(np.array_equal(model_dict[key].numpy(), new_model['model'].state_dict()[key].numpy()))
+        self.assertEqual(optimizer_dict, new_optimizer_state['model'])
         self.assertEqual(self.epoch, new_epoch)
         self.assertEqual(self.lr, new_lr)
 

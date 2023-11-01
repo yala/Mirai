@@ -75,7 +75,8 @@ class TestTransformers(unittest.TestCase):
         im.putdata(pixel)
         self.kwargs['w'] = 2
         self.kwargs['h'] = 2
-        with mock.patch('random.randint', lambda x, y: 0):
+        self.args.use_region_annotation = False
+        with mock.patch('torch.randint', lambda x, y, size: torch.tensor([0])):
             cropper = ti.Random_Crop(self.args, self.kwargs)
             output = cropper(im, None)
         expected = Image.new("RGB", (2, 2))
@@ -109,12 +110,12 @@ class TestTransformers(unittest.TestCase):
 
     def test_tensor_normalize_tensor_2d(self):
         ''' Test normalizing a tensor with a certain mean and a certain std deviation.'''
-        self.args.img_mean = 2
-        self.args.img_std = 2
-        tensor = torch.IntTensor([[[4, 4, 4], [6, 6, 6]], [[8, 8, 8], [10, 10, 10]]])
+        self.args.img_mean = [2.0]
+        self.args.img_std = [2.0]
+        tensor = torch.FloatTensor([[[4, 4, 4], [6, 6, 6]], [[8, 8, 8], [10, 10, 10]]])
         normalizer = tt.Normalize_Tensor_2d(self.args, self.kwargs)
         output = normalizer(tensor, None).numpy()
-        expected = torch.IntTensor([[[1, 1, 1], [2, 2, 2]], [[3, 3, 3], [4, 4, 4]]]).numpy()
+        expected = torch.FloatTensor([[[1, 1, 1], [2, 2, 2]], [[3, 3, 3], [4, 4, 4]]]).numpy()
         self.assertTrue(np.array_equal(expected, output))
 
 
