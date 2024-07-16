@@ -138,11 +138,10 @@ class Scale_2d(Abstract_transformer):
         assert len(kwargs.keys()) == 0
         width, height = args.img_size
         self.set_cachable(width, height)
-
         self.transform = torchvision.transforms.Resize((height, width))
 
     def __call__(self, img, additional=None):
-        return self.transform(img)
+        return self.transform(img.convert('I'))
 
 @RegisterImageTransformer("scale_2d_with_fixed_aspect_ratio")
 class Scale_2d_With_Fixed_Aspect_Ratio(Abstract_transformer):

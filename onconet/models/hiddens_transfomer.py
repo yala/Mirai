@@ -55,7 +55,7 @@ class AllImageTransformer(nn.Module):
     def mask_input(self, x, view_seq):
         B, N, _ = x.size()
         mask_prob = self.args.mask_prob if self.training and self.args.pred_missing_mammos else 0
-        is_mask = torch.bernoulli( self.kept_images_vec.expand([B,N,1]) * mask_prob ) #0 is not masked, 1 is masked
+        is_mask = torch.bernoulli( self.kept_images_vec.expand([B,N,1]) * mask_prob).to(x.device) #0 is not masked, 1 is masked
         # Don't mask out any PAD images
         is_mask = is_mask * (view_seq < MAX_VIEWS).unsqueeze(-1).float() # sets all not viewed as 0
         is_kept = 1 - is_mask
