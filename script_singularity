@@ -1,0 +1,22 @@
+STEPS FOR RUNNING MIRAI ON A REMOTE HPC WITHIN A SINGULARITY CONTAINER 
+
+Transfer .tar file to remote HPC directory
+$ rsync -avPz oncoserve_mirai_0.3.1.tar foo@host: PATH_T0_DIR 
+
+Activate Singularity module on HPC:
+$ module load gcc/8.3.0
+$ module load singularity/3.6.4
+
+Covert .tar file to singularity image (writeable sandbox format used here)
+Within the oncoserve_mirai_0.3.1.tar file directory:
+$ singularity build --disable-cache --sandbox oncoserve_mirai_0.3.1.simg docker-archive://oncoserve_mirai_0.3.1.tar
+"--disable-cache" option only necessary if encountering disk space limitation for cache or unable to change cache directory:
+
+RUNNING SINGULARITY SHELL WITH SANDBOX IMAGE IN PLACE:
+
+$ singularity shell --bind PATH_TO_DATA_DIR:/data oncoserve_mirai_0.3.1.simg /bin/zsh
+this takes you into the singularity shell
+
+:
+Singularity> cd /root/OncoNet/
+Singularity> pip install -r requirements.txt
